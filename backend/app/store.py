@@ -7,6 +7,7 @@ from __future__ import annotations
 from typing import Any
 
 from app.seed import SEED_ROWS
+from app.services.tug_rules import standard_rows
 
 
 class Store:
@@ -14,9 +15,12 @@ class Store:
         self._tables: dict[str, list[dict[str, Any]]] = {
             name: [dict(row) for row in rows] for name, rows in SEED_ROWS.items()
         }
+        # 分水域派工口径直接取口径常量，台账/看板/试算读的都是这一份配置。
+        self._tables["_tug_standard"] = [dict(row) for row in standard_rows()]
 
     def module_names(self) -> list[str]:
-        return sorted(self._tables)
+        # 下划线开头的是内部配置表，不计入业务模块与运营概览。
+        return sorted(name for name in self._tables if not name.startswith("_"))
 
     def rows(self, module: str) -> list[dict[str, Any]]:
         return self._tables.setdefault(module, [])
