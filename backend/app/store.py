@@ -8,6 +8,10 @@ from typing import Any
 
 from app.seed import SEED_ROWS
 
+# 业务模块的内部支撑表（派工单、口径配置等），不单独出现在运营概览里，
+# 但仍可通过 rows() 正常取数。
+INTERNAL_TABLES = {"tug_order", "tug_standard"}
+
 
 class Store:
     def __init__(self) -> None:
@@ -16,7 +20,7 @@ class Store:
         }
 
     def module_names(self) -> list[str]:
-        return sorted(self._tables)
+        return sorted(name for name in self._tables if name not in INTERNAL_TABLES)
 
     def rows(self, module: str) -> list[dict[str, Any]]:
         return self._tables.setdefault(module, [])
